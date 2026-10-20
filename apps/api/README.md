@@ -31,6 +31,25 @@
 $ pnpm install
 ```
 
+## Path aliases
+
+`@/*` maps to `src/*` (see `tsconfig.json`). The Nest CLI rewrites those
+specifiers to relative paths when compiling, so `@/` imports work in
+`nest build` / `nest start` output. Plain `tsc` does not rewrite them.
+
+## Database
+
+Prisma is pinned to v7 in this workspace, so always run the CLI through the
+workspace. `npx prisma` resolves to the Prisma 8 RC, which expects a different
+config format (an `orm` section in `prisma.config.ts`) and fails with
+`CLI.CONFIG_SECTION_INVALID`.
+
+```bash
+# from apps/api (or via the workspace scripts)
+$ pnpm --filter api exec prisma migrate dev
+$ pnpm --filter api db:migrate
+```
+
 ## Compile and run the project
 
 ```bash
