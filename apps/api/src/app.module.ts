@@ -1,23 +1,18 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { AuthModule } from "@thallesp/nestjs-better-auth";
-import { validate } from "./configs/env.validation.js";
-import { auth } from "./lib/auth.js";
-import { AppController } from './app.controller.js';
+import { envSchema } from "./configs/env.validation.js";
+import { AppController } from "./app.controller.js";
+import { AuthModule } from "./modules/auth/auth.module.js";
 import { PrismaModule } from "./modules/prisma/prisma.module.js";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validate,
-    }),
-    AuthModule.forRoot({
-      auth,
-      isGlobal: true,
-      disableTrustedOriginsCors: true,
+      validationSchema: envSchema,
     }),
     PrismaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],

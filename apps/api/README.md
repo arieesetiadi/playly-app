@@ -50,6 +50,37 @@ $ pnpm --filter api exec prisma migrate dev
 $ pnpm --filter api db:migrate
 ```
 
+## Authentication
+
+JWT auth lives in `src/modules/auth`. Access tokens (15m default) go in the
+`Authorization: Bearer <token>` header. Refresh tokens (7d default) are stored
+hashed in the database and sent as an httpOnly cookie scoped to `/api/auth`,
+so every request that needs one must include credentials.
+
+| Method | Route                        | Auth             |
+| ------ | ---------------------------- | ---------------- |
+| POST   | `/api/auth/register`         | public           |
+| POST   | `/api/auth/login`            | public           |
+| POST   | `/api/auth/refresh`          | refresh cookie   |
+| POST   | `/api/auth/logout`           | refresh cookie   |
+| GET    | `/api/auth/me`               | bearer           |
+| GET    | `/api/auth/google`           | public           |
+| GET    | `/api/auth/google/callback`  | public           |
+
+`register` and `login` respond with `{ user, accessToken }` and set the refresh
+cookie. `refresh` rotates the refresh token (each token is single use) and
+returns a new access token. `logout` revokes the token and clears the cookie.
+
+Routes are protected globally by `JwtAuthGuard`; opt out with `@Public()`.
+Google OAuth redirects back to `${FRONTEND_BASE_URL}/auth/callback` with only
+the refresh cookie set - the frontend calls `/api/auth/refresh` to get an
+access token.
+
+Required env vars: `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`,
+`JWT_ACCESS_TTL` (default `15m`), `JWT_REFRESH_TTL` (default `7d`),
+`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`,
+`FRONTEND_BASE_URL`. See `.env.example`.
+
 ## Compile and run the project
 
 ```bash

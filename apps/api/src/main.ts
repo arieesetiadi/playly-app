@@ -1,13 +1,14 @@
+import cookieParser from "cookie-parser";
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
+import { StandardSchemaValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module.js";
 import { TransformInterceptor } from "./common/interceptors/transform.interceptor.js";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter.js";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: false,
-  });
+  const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
 
   app.enableCors({
     origin: process.env.FRONTEND_BASE_URL!,
@@ -25,10 +26,10 @@ async function bootstrap() {
   });
 
   app.setGlobalPrefix("api");
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new StandardSchemaValidationPipe());
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.listen(process.env.PORT ?? 4000);
 }
-bootstrap();
+void bootstrap();
