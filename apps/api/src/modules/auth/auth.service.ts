@@ -7,22 +7,23 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 import { createHash, randomUUID } from "node:crypto";
 import { compare, hash } from "bcryptjs";
+import type {
+  AuthenticatedUser,
+  AuthSession,
+  LoginInput,
+  RegisterInput,
+} from "@repo/contracts";
 import { Prisma } from "@/generated/prisma/client.js";
 import { PrismaService } from "@/modules/prisma/prisma.service.js";
 import { USER_SELECT } from "./auth.constants.js";
-import type { LoginDto } from "./dto/login.dto.js";
-import type { RegisterDto } from "./dto/register.dto.js";
 import type {
-  AuthenticatedUser,
   GoogleProfileData,
   JwtPayload,
 } from "./types/authenticated-user.js";
 
 const BCRYPT_ROUNDS = 12;
 
-export interface AuthResult {
-  user: AuthenticatedUser;
-  accessToken: string;
+export interface AuthResult extends AuthSession {
   refreshToken: string;
   refreshTokenExpiresAt: Date;
 }
@@ -35,7 +36,7 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<AuthResult> {
+  async register(dto: RegisterInput): Promise<AuthResult> {
     const email = dto.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({
       where: { email },
@@ -69,7 +70,7 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto): Promise<AuthResult> {
+  async login(dto: LoginInput): Promise<AuthResult> {
     const email = dto.email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email } });
 

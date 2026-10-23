@@ -1,13 +1,5 @@
 import type { Request } from "express";
 
-export interface AuthenticatedUser {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-  emailVerified: boolean;
-}
-
 export interface JwtPayload {
   sub: string;
   email: string;

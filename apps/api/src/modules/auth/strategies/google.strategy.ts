@@ -7,7 +7,7 @@ import {
   VerifyCallback,
 } from "passport-google-oauth20";
 import { AuthService } from "../auth.service.js";
-import type { AuthenticatedUser } from "../types/authenticated-user.js";
+import type { AuthenticatedUser } from "@repo/contracts";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {

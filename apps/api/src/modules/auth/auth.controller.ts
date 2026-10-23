@@ -11,6 +11,13 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { Response } from "express";
+import {
+  loginInput,
+  registerInput,
+  type AuthenticatedUser,
+  type LoginInput,
+  type RegisterInput,
+} from "@repo/contracts";
 import { AuthService, type AuthResult } from "./auth.service.js";
 import {
   REFRESH_TOKEN_COOKIE,
@@ -18,13 +25,8 @@ import {
 } from "./auth.constants.js";
 import { CurrentUser } from "./decorators/current-user.decorator.js";
 import { Public } from "./decorators/public.decorator.js";
-import { loginSchema, type LoginDto } from "./dto/login.dto.js";
-import { registerSchema, type RegisterDto } from "./dto/register.dto.js";
 import { GoogleAuthGuard } from "./guards/google-auth.guard.js";
-import type {
-  AuthenticatedUser,
-  RequestWithCookies,
-} from "./types/authenticated-user.js";
+import type { RequestWithCookies } from "./types/authenticated-user.js";
 
 @Controller("auth")
 export class AuthController {
@@ -36,7 +38,7 @@ export class AuthController {
   @Public()
   @Post("register")
   async register(
-    @Body({ schema: registerSchema }) dto: RegisterDto,
+    @Body({ schema: registerInput }) dto: RegisterInput,
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.completeAuth(await this.authService.register(dto), res);
@@ -46,7 +48,7 @@ export class AuthController {
   @Post("login")
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body({ schema: loginSchema }) dto: LoginDto,
+    @Body({ schema: loginInput }) dto: LoginInput,
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.completeAuth(await this.authService.login(dto), res);
